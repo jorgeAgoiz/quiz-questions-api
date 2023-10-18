@@ -1,3 +1,4 @@
+import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 import * as mongoose from "npm:mongoose@7.6.3";
 
 interface QuestionDto {
@@ -10,16 +11,27 @@ interface QuestionDto {
   incorrectAnswers: Array<string>;
 }
 
-const Schema = mongoose.Schema;
+const { Schema } = mongoose;
 
-const questionSchema = new Schema({
-  category: {
-    type: String,
+const mongodbSchema = new Schema(
+  {
+    category: {
+      type: String,
+    },
+    format: String,
+    question: String,
+    correctAnswer: String,
+    incorrectAnswers: [String],
   },
-  format: String,
-  question: String,
-  correctAnswer: String,
-  incorrectAnswers: [String],
-});
+  { validateBeforeSave: true }
+);
 
-export const Question = mongoose.model<QuestionDto>("Question", questionSchema);
+export const Question = mongoose.model<QuestionDto>("Question", mongodbSchema);
+
+export const validationSchema = z.object({
+  category: z.string(),
+  format: z.enum(["multiple", "boolean"]),
+  question: z.string(),
+  correctAnswer: z.string(),
+  incorrectAnswers: z.array(z.string()),
+});
