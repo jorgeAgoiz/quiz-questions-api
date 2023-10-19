@@ -2,9 +2,7 @@ import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 import * as mongoose from "npm:mongoose@7.6.3";
 
 interface QuestionDto {
-  category: {
-    type: string;
-  };
+  category: string;
   format: string;
   question: string;
   correctAnswer: string;
@@ -12,6 +10,7 @@ interface QuestionDto {
 }
 
 const { Schema } = mongoose;
+mongoose.pluralize(null);
 
 const mongodbSchema = new Schema(
   {
@@ -28,7 +27,7 @@ const mongodbSchema = new Schema(
 
 export const Question = mongoose.model<QuestionDto>("Question", mongodbSchema);
 
-export const validationSchema = z.object({
+export const questionSchema = z.object({
   category: z.string(),
   format: z.enum(["multiple", "boolean"]),
   question: z.string(),

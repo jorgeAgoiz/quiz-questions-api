@@ -1,7 +1,7 @@
 import { bearerAuth } from "https://deno.land/x/hono@v3.7.2/middleware/bearer-auth/index.ts";
 import { HTTPException, Hono } from "https://deno.land/x/hono@v3.7.2/mod.ts";
 import { AUTH_TOKEN } from "../config/app-constants.ts";
-import { Question, validationSchema } from "../schemas/question.ts";
+import { Question, questionSchema } from "../schemas/question.ts";
 
 export const questions = new Hono();
 
@@ -11,7 +11,7 @@ questions.post("/", async (ctx) => {
   const body = await ctx.req.json();
   const { category, format, question, correctAnswer, incorrectAnswers } = body;
 
-  const isValid = validationSchema.safeParse({
+  const isValid = questionSchema.safeParse({
     category,
     format,
     question,
@@ -22,7 +22,7 @@ questions.post("/", async (ctx) => {
     throw new HTTPException(412, { message: "Incorrect formats" });
   }
 
-  const savedData = await Question.create({
+  await Question.create({
     category,
     format,
     question,
@@ -30,7 +30,18 @@ questions.post("/", async (ctx) => {
     incorrectAnswers,
   });
 
-  console.log({ savedData });
-
   return ctx.json({ success: true }, 201);
+});
+
+questions.get("/", async (ctx) => {
+  const questions = await Question.find();
+
+  /**
+   * @todo
+   * - Añadir:
+   *   - Paginación
+   *   - Filtros
+   */
+
+  return ctx.json({ questions, total: questions.length, success: true }, 200);
 });

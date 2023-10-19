@@ -5,6 +5,7 @@ import { Hono } from "https://deno.land/x/hono@v3.7.2/mod.ts";
 import Logger from "https://deno.land/x/logger@v1.1.1/logger.ts";
 import * as mongoose from "npm:mongoose@7.6.3";
 import { MONGODB_URI, PORT } from "./config/app-constants.ts";
+import { users } from "./routes/auth.ts";
 import { questions } from "./routes/questions.ts";
 
 const app = new Hono();
@@ -14,6 +15,7 @@ app.use("*", logs());
 app.use("*", cors());
 app.use("*", compress());
 app.route("/questions", questions);
+app.route("/auth", users);
 
 const onListen = (): void => {
   logger.info(`Listening on port ${PORT}...`);
