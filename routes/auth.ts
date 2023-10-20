@@ -1,11 +1,9 @@
-import { bearerAuth } from "https://deno.land/x/hono@v3.7.2/middleware/bearer-auth/index.ts";
-import { Hono, HTTPException } from "https://deno.land/x/hono@v3.7.2/mod.ts";
-import { Resend } from "npm:resend@1.0.0";
-import { AUTH_TOKEN, RESEND_API_KEY } from "../config/app-constants.ts";
-import { User, userSchema } from "../schemas/user.ts";
+import { AUTH_TOKEN, EMAIL_USER } from "/config/app-constants.ts";
+import { transporter } from "/config/nodemailer.ts";
+import { HTTPException, Hono, Logger, bearerAuth } from "/deps.ts";
+import { User, userSchema } from "/schemas/user.ts";
 
-const resend = new Resend(RESEND_API_KEY);
-
+const logger = new Logger();
 export const users = new Hono();
 
 users.use("*", bearerAuth({ token: AUTH_TOKEN }));
@@ -18,11 +16,13 @@ users.post("/", async (ctx) => {
     throw new HTTPException(400, { message: "Email is required" });
   }
 
+  const apiKey: string = crypto.randomUUID();
+
   const newUser = {
     email,
     admin: false,
-    apiKey: crypto.randomUUID(),
-    active: false,
+    apiKey,
+    active: true,
     lastAccess: new Date(Date.now()),
   };
 
@@ -33,18 +33,16 @@ users.post("/", async (ctx) => {
 
   await User.create(newUser);
 
-  /**
-   * @todo
-   * - Mandar email de activación API KEY
-   */
-  const data = await resend.emails.send({
-    from: "Quiz Questions API <onboarding@resend.dev>",
-    to: [email],
-    subject: "hello world",
-    html: "<strong>it works!</strong>",
+  const result = await transporter.sendMail({
+    to: email,
+    from: EMAIL_USER,
+    subject: "API KEY",
+    html: `Tu Key para poder empezar a usar la API es: ${apiKey}`,
   });
 
-  console.log({ data });
+  if (result.accepted?.length <= 0) {
+    logger.error("The api key could not be sent to the email");
+  }
 
   return ctx.json({ success: true }, 201);
 });

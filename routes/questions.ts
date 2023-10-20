@@ -1,7 +1,6 @@
-import { bearerAuth } from "https://deno.land/x/hono@v3.7.2/middleware/bearer-auth/index.ts";
-import { HTTPException, Hono } from "https://deno.land/x/hono@v3.7.2/mod.ts";
-import { AUTH_TOKEN } from "../config/app-constants.ts";
-import { Question, questionSchema } from "../schemas/question.ts";
+import { AUTH_TOKEN } from "/config/app-constants.ts";
+import { HTTPException, Hono, bearerAuth } from "/deps.ts";
+import { Question, questionSchema } from "/schemas/question.ts";
 
 export const questions = new Hono();
 

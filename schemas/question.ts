@@ -1,5 +1,4 @@
-import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
-import * as mongoose from "npm:mongoose@7.6.3";
+import { mongoose, z } from "/deps.ts";
 
 interface QuestionDto {
   category: string;
