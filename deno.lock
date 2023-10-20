@@ -4,6 +4,7 @@
     "specifiers": {
       "npm:mongoose": "npm:mongoose@7.6.3",
       "npm:mongoose@7.6.3": "npm:mongoose@7.6.3",
+      "npm:nodemailer@6.9.6": "npm:nodemailer@6.9.6",
       "npm:resend@1.0.0": "npm:resend@1.0.0"
     },
     "npm": {
@@ -310,6 +311,10 @@
         "dependencies": {
           "whatwg-url": "whatwg-url@5.0.0"
         }
+      },
+      "nodemailer@6.9.6": {
+        "integrity": "sha512-s7pDtWwe5fLMkQUhw8TkWB/wnZ7SRdd9HRZslq/s24hlZvBP3j32N/ETLmnqTpmj4xoBZL9fOWyCIZ7r2HORHg==",
+        "dependencies": {}
       },
       "nopt@6.0.0": {
         "integrity": "sha512-ZwLpbTgdhuZUnZzjd7nb1ZV+4DoiC6/sfiVKok72ym/4Tlf+DFdlHYmT2JPmcNNWV6Pi3SDf1kT+A4r9RTuT9g==",

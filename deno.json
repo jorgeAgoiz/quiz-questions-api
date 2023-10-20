@@ -1,5 +1,15 @@
 {
   "tasks": {
     "dev": "deno run --allow-net --allow-read --allow-sys --allow-env --watch index.ts"
+  },
+  "imports": {
+    "/": "./",
+    "./": "./",
+    "mongoose": "npm:mongoose@7.6.3",
+    "nodemailer": "npm:nodemailer@6.9.6",
+    "zod": "https://deno.land/x/zod@v3.22.4/mod.ts",
+    "std/": "https://deno.land/std@0.204.0/",
+    "logger": "https://deno.land/x/logger@v1.1.1/logger.ts",
+    "fmt/": "https://deno.land/x/hono@v3.7.2/"
   }
 }
