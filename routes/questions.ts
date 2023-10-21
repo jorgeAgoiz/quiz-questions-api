@@ -1,8 +1,9 @@
 import { AUTH_TOKEN_QUESTIONS } from "/config/app-constants.ts";
-import { HTTPException, Hono, bearerAuth } from "/deps.ts";
+import { HTTPException, Hono, Logger, bearerAuth } from "/deps.ts";
 import { Question, questionSchema } from "/schemas/question.ts";
 import { User } from "/schemas/user.ts";
 
+const logger = new Logger();
 export const questions = new Hono();
 
 questions.post(
@@ -37,19 +38,28 @@ questions.post(
 );
 
 questions.get("/", async (ctx) => {
-  const apiKey = ctx.req.header("Authorization");
-  const user = await User.findOne({ apiKey });
-  if (!user) {
-    throw new HTTPException(401, { message: "Unauthorized" });
+  try {
+    const apiKey = ctx.req.header("Authorization");
+    const user = await User.findOne({ apiKey });
+    if (!user) {
+      throw new HTTPException(401, { message: "Unauthorized" });
+    }
+
+    user.lastAccess = new Date(Date.now());
+    await user.save();
+
+    const questions = await Question.find();
+
+    /**
+     * @todo
+     * - Añadir:
+     *   - Paginación
+     *   - Filtros
+     */
+
+    return ctx.json({ questions, total: questions.length, success: true }, 200);
+  } catch (error) {
+    logger.error(error?.message);
+    return ctx.json({ success: false, message: error?.message }, error?.status);
   }
-  const questions = await Question.find();
-
-  /**
-   * @todo
-   * - Añadir:
-   *   - Paginación
-   *   - Filtros
-   */
-
-  return ctx.json({ questions, total: questions.length, success: true }, 200);
 });

@@ -5,7 +5,7 @@ interface UserDto {
   admin: boolean;
   apiKey: string;
   active: boolean;
-  lastAccess: string;
+  lastAccess: Date;
 }
 
 const { Schema } = mongoose;
