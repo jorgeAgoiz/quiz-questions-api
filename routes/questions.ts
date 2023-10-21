@@ -1,38 +1,47 @@
-import { AUTH_TOKEN } from "/config/app-constants.ts";
+import { AUTH_TOKEN_QUESTIONS } from "/config/app-constants.ts";
 import { HTTPException, Hono, bearerAuth } from "/deps.ts";
 import { Question, questionSchema } from "/schemas/question.ts";
+import { User } from "/schemas/user.ts";
 
 export const questions = new Hono();
 
-questions.use("*", bearerAuth({ token: AUTH_TOKEN }));
+questions.post(
+  "/",
+  bearerAuth({ token: AUTH_TOKEN_QUESTIONS }),
+  async (ctx) => {
+    const body = await ctx.req.json();
+    const { category, format, question, correctAnswer, incorrectAnswers } =
+      body;
 
-questions.post("/", async (ctx) => {
-  const body = await ctx.req.json();
-  const { category, format, question, correctAnswer, incorrectAnswers } = body;
+    const isValid = questionSchema.safeParse({
+      category,
+      format,
+      question,
+      correctAnswer,
+      incorrectAnswers,
+    });
+    if (!isValid.success) {
+      throw new HTTPException(412, { message: "Incorrect formats" });
+    }
 
-  const isValid = questionSchema.safeParse({
-    category,
-    format,
-    question,
-    correctAnswer,
-    incorrectAnswers,
-  });
-  if (!isValid.success) {
-    throw new HTTPException(412, { message: "Incorrect formats" });
+    await Question.create({
+      category,
+      format,
+      question,
+      correctAnswer,
+      incorrectAnswers,
+    });
+
+    return ctx.json({ success: true }, 201);
   }
-
-  await Question.create({
-    category,
-    format,
-    question,
-    correctAnswer,
-    incorrectAnswers,
-  });
-
-  return ctx.json({ success: true }, 201);
-});
+);
 
 questions.get("/", async (ctx) => {
+  const apiKey = ctx.req.header("Authorization");
+  const user = await User.findOne({ apiKey });
+  if (!user) {
+    throw new HTTPException(401, { message: "Unauthorized" });
+  }
   const questions = await Question.find();
 
   /**
