@@ -10,6 +10,8 @@ import { User, userSchema } from "/schemas/user.ts";
 const logger = new Logger();
 export const users = new Hono();
 
+console.log({ AUTH_TOKEN_USERS });
+
 users.use("*", bearerAuth({ token: AUTH_TOKEN_USERS }));
 
 users.post("/", async (ctx) => {
