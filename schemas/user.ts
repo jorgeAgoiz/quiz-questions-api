@@ -1,12 +1,5 @@
+import { UserDto } from "/config/types.ts";
 import { mongoose, z } from "/deps.ts";
-
-interface UserDto {
-  email: string;
-  admin: boolean;
-  apiKey: string;
-  active: boolean;
-  lastAccess: Date;
-}
 
 const { Schema } = mongoose;
 mongoose.pluralize(null);

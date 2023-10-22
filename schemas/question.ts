@@ -1,23 +1,17 @@
+import { QuestionDto } from "/config/types.ts";
 import { mongoose, z } from "/deps.ts";
-
-interface QuestionDto {
-  category: string;
-  format: string;
-  question: string;
-  correctAnswer: string;
-  incorrectAnswers: Array<string>;
-}
 
 const { Schema } = mongoose;
 mongoose.pluralize(null);
 
 const mongodbSchema = new Schema(
   {
-    category: {
-      type: String,
-    },
+    category: String,
     format: String,
-    question: String,
+    question: {
+      type: String,
+      unique: true,
+    },
     correctAnswer: String,
     incorrectAnswers: [String],
   },
@@ -27,7 +21,14 @@ const mongodbSchema = new Schema(
 export const Question = mongoose.model<QuestionDto>("Question", mongodbSchema);
 
 export const questionSchema = z.object({
-  category: z.string(),
+  category: z.enum([
+    "geography",
+    "arts&literature",
+    "history",
+    "entertainment",
+    "science&nature",
+    "sports&leisure",
+  ]),
   format: z.enum(["multiple", "boolean"]),
   question: z.string(),
   correctAnswer: z.string(),

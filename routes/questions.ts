@@ -1,4 +1,8 @@
-import { AUTH_TOKEN_QUESTIONS } from "/config/app-constants.ts";
+import {
+  AUTH_TOKEN_QUESTIONS,
+  DUPLICATE_KEY_CODE,
+} from "/config/app-constants.ts";
+import { QuestionFilters } from "/config/types.ts";
 import { HTTPException, Hono, Logger, bearerAuth } from "/deps.ts";
 import { Question, questionSchema } from "/schemas/question.ts";
 import { User } from "/schemas/user.ts";
@@ -10,37 +14,46 @@ questions.post(
   "/",
   bearerAuth({ token: AUTH_TOKEN_QUESTIONS }),
   async (ctx) => {
-    const body = await ctx.req.json();
-    const { category, format, question, correctAnswer, incorrectAnswers } =
-      body;
+    try {
+      const body = await ctx.req.json();
+      const { category, format, question, correctAnswer, incorrectAnswers } =
+        body;
 
-    const isValid = questionSchema.safeParse({
-      category,
-      format,
-      question,
-      correctAnswer,
-      incorrectAnswers,
-    });
-    if (!isValid.success) {
-      throw new HTTPException(412, { message: "Incorrect formats" });
+      const isValid = questionSchema.safeParse({
+        category,
+        format,
+        question,
+        correctAnswer,
+        incorrectAnswers,
+      });
+      if (!isValid.success) {
+        throw new HTTPException(412, { message: "Incorrect formats" });
+      }
+
+      await Question.create({
+        category,
+        format,
+        question,
+        correctAnswer,
+        incorrectAnswers,
+      });
+
+      return ctx.json({ success: true }, 201);
+    } catch (error) {
+      if (error?.message.includes(DUPLICATE_KEY_CODE)) {
+        return ctx.json(
+          { success: false, message: "This question already exists" },
+          400
+        );
+      }
+
+      return ctx.json(
+        { success: false, message: error?.message },
+        error?.status
+      );
     }
-
-    await Question.create({
-      category,
-      format,
-      question,
-      correctAnswer,
-      incorrectAnswers,
-    });
-
-    return ctx.json({ success: true }, 201);
   }
 );
-
-interface QuestionFilters {
-  category?: string;
-  format?: string;
-}
 
 questions.get("/", async (ctx) => {
   try {
@@ -66,22 +79,11 @@ questions.get("/", async (ctx) => {
       filters.format = format;
     }
 
-    console.log({ page, limit, category, format, skip });
-
     const questions = await Question.find(
       filters,
-      { _id: 0 },
+      {},
       { limit: parseInt(limit) ?? 10, skip: skip ?? 0 }
     );
-
-    /**
-     * @todo
-     * - Añadir:
-     *   - Paginación
-     *   - Filtros
-     * https://www.mongodb.com/docs/manual/reference/operator/query/rand/
-     * https://www.mongodb.com/docs/manual/reference/operator/aggregation/sample/
-     */
 
     return ctx.json({ questions, total: questions.length, success: true }, 200);
   } catch (error) {
