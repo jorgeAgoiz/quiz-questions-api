@@ -91,3 +91,8 @@ questions.get("/", async (ctx) => {
     return ctx.json({ success: false, message: error?.message }, error?.status);
   }
 });
+
+/**
+ * @todo
+ * - Improve get questions endpoint
+ */
