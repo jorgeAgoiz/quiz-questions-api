@@ -58,6 +58,7 @@ users.post("/", async (ctx) => {
       );
     }
 
+    logger.error(JSON.stringify(error));
     return ctx.json({ success: false, message: error?.message }, error?.status);
   }
 });
