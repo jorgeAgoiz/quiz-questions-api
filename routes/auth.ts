@@ -38,6 +38,7 @@ users.post("/", async (ctx) => {
 
     await User.create(newUser);
 
+    console.log({ EMAIL_USER });
     const emailSended = await transporter.sendMail({
       to: email,
       from: EMAIL_USER,
