@@ -12,7 +12,7 @@ export const questions = new Hono();
 
 questions.post(
   "/",
-  bearerAuth({ token: AUTH_TOKEN_QUESTIONS }),
+  bearerAuth({ token: AUTH_TOKEN_QUESTIONS as string }),
   async (ctx) => {
     try {
       const body = await ctx.req.json();
