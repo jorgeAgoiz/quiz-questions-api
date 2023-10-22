@@ -37,10 +37,17 @@ questions.post(
   }
 );
 
+interface QuestionFilters {
+  category?: string;
+  format?: string;
+}
+
 questions.get("/", async (ctx) => {
   try {
+    const { page, limit, category, format } = ctx.req.query();
+
     const apiKey = ctx.req.header("Authorization");
-    const user = await User.findOne({ apiKey });
+    const user = await User.findOne({ apiKey, active: true });
     if (!user) {
       throw new HTTPException(401, { message: "Unauthorized" });
     }
@@ -48,13 +55,32 @@ questions.get("/", async (ctx) => {
     user.lastAccess = new Date(Date.now());
     await user.save();
 
-    const questions = await Question.find();
+    const skip: number = (parseInt(page) - 1) * parseInt(limit);
+    const filters: QuestionFilters = {};
+
+    if (category) {
+      filters.category = category;
+    }
+
+    if (format) {
+      filters.format = format;
+    }
+
+    console.log({ page, limit, category, format, skip });
+
+    const questions = await Question.find(
+      filters,
+      { _id: 0 },
+      { limit: parseInt(limit) ?? 10, skip: skip ?? 0 }
+    );
 
     /**
      * @todo
      * - Añadir:
      *   - Paginación
      *   - Filtros
+     * https://www.mongodb.com/docs/manual/reference/operator/query/rand/
+     * https://www.mongodb.com/docs/manual/reference/operator/aggregation/sample/
      */
 
     return ctx.json({ questions, total: questions.length, success: true }, 200);
