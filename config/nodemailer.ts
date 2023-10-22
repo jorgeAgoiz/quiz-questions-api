@@ -8,7 +8,7 @@ import { nodemailer } from "/deps.ts";
 export const transporter = nodemailer.createTransport({
   host: EMAIL_HOST,
   secure: false,
-  port: 587,
+  port: 465,
   tls: {
     rejectUnauthorized: false,
   },
