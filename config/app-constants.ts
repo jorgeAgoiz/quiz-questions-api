@@ -2,7 +2,7 @@ import { load } from "/deps.ts";
 
 const env = await load();
 
-export const PORT: string = env["PORT"];
+export const PORT = Deno.env.get("PORT");
 export const AUTH_TOKEN_USERS: string = env["AUTH_TOKEN_USERS"];
 export const AUTH_TOKEN_QUESTIONS: string = env["AUTH_TOKEN_QUESTIONS"];
 export const MONGODB_URI: string = env["MONGODB_URI"];
