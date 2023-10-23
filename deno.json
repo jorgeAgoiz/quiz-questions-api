@@ -1,6 +1,7 @@
 {
   "tasks": {
-    "dev": "deno run --allow-net --allow-read --allow-sys --allow-env --watch index.ts"
+    "dev": "deno run --allow-net --allow-read --allow-sys --allow-env --watch index.ts",
+    "prod": "deno run --allow-net --allow-read --allow-sys --allow-env index.ts"
   },
   "imports": {
     "/": "./",
